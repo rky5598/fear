@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Карта страхов — векторальный опросник</title>
+<style>
+  :root{
+    --bg:#f7f5f2; --card:#ffffff; --ink:#2b2b33; --muted:#6b6b75;
+    --acc:#5b4b8a; --acc2:#8a7bb8; --line:#e5e1da; --sel:#efeaff; --warn:#8a3b3b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:var(--ink);line-height:1.55}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 80px}
+  h1{font-size:26px;margin:8px 0 4px}
+  .sub{color:var(--muted);font-size:15px;margin-bottom:18px}
+  .screen{display:none}
+  .screen.active{display:block}
+  .house{margin:26px 0 8px;padding:14px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+  .house h2{font-size:19px;margin:0 0 2px;color:var(--acc)}
+  .house .meta{font-size:13px;color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:10px 0;overflow:hidden}
+  .card>button{all:unset;display:block;width:100%;padding:12px 16px;cursor:pointer;font-family:inherit;font-size:16px;font-weight:bold}
+  .card>button:hover{background:#f4f1fb}
+  .card .body{display:none;padding:4px 16px 16px;border-top:1px solid var(--line)}
+  .card.open .body{display:block}
+  .card .desc{font-size:14.5px;margin:8px 0}
+  .card .ex{font-size:13.5px;color:var(--muted);margin:8px 0;padding-left:16px}
+  .card .ex li{margin:4px 0}
+  .fears{margin:10px 0 4px}
+  .fear{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:15px}
+  .fear:hover{background:#f4f1fb}
+  .fear.sel{background:var(--sel);outline:1px solid var(--acc2)}
+  .fear input{margin-top:4px;accent-color:var(--acc)}
+  .own{display:flex;gap:8px;margin-top:10px}
+  .own input[type=text]{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:14px}
+  .own button{all:unset;cursor:pointer;padding:8px 14px;border-radius:8px;background:var(--acc);color:#fff;font-size:14px}
+  .bar{position:fixed;bottom:0;left:0;right:0;background:#ffffffee;border-top:1px solid var(--line);padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+  .bar .cnt{font-size:14px;color:var(--muted)}
+  .btn{all:unset;cursor:pointer;padding:10px 20px;border-radius:10px;background:var(--acc);color:#fff;font-size:15px}
+  .btn.sec{background:#eee;color:var(--ink)}
+  .btn:disabled{opacity:.4;cursor:default}
+  .int-row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .int-row h3{margin:0 0 4px;font-size:17px}
+  .int-row .picked{font-size:13.5px;color:var(--muted);margin-bottom:10px}
+  .scale{display:flex;flex-direction:column;gap:6px}
+  .scale label{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:14.5px}
+  .scale label:hover{background:#f4f1fb}
+  .scale input{margin-top:3px;accent-color:var(--acc)}
+  .res-table{width:100%;border-collapse:collapse;margin:14px 0;background:var(--card);border-radius:12px;overflow:hidden;font-size:14.5px}
+  .res-table th,.res-table td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  .res-table th{background:#efeaff;font-weight:bold}
+  .lead{background:var(--card);border-left:5px solid var(--acc);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:16px}
+  .warnbox{background:#fdeeee;border-left:5px solid var(--warn);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:15px}
+  .pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12.5px;background:#efeaff;color:var(--acc);margin-left:6px}
+  .hint{font-size:13.5px;color:var(--muted)}
+  @media print{.bar{display:none}.card .body{display:block!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ЭКРАН 1: ВЫБОР -->
+  <div id="s1" class="screen active">
+    <h1>Карта страхов</h1>
+    <p class="sub">Задание 1-го дня. Пройдите по карточкам — каждый дом это вектор, внутри карточки перечислены страхи одного вида. Отмечайте <b>только те страхи, которые про вас</b>: те, что накрывают, а не те, что «бывает у людей». Можно добавлять свои — по одному, через поле ввода. В конце система определит ваш векторальный профиль и состояние каждого вектора.</p>
+    <div id="houses"></div>
+  </div>
+
+  <!-- ЭКРАН 2: ИНТЕНСИВНОСТЬ -->
+  <div id="s2" class="screen">
+    <h1>Как это накрывает?</h1>
+    <p class="sub">Для каждого дома, где вы отметили страхи, выберите — как они обычно вас накрывают. Это определит ступень по лестнице страха и стадию (стресс → фрустрация → невроз).</p>
+    <div id="intens"></div>
+    <div style="margin-top:18px"><button class="btn" id="toRes">Показать результат</button></div>
+  </div>
+
+  <!-- ЭКРАН 3: РЕЗУЛЬТАТ -->
+  <div id="s3" class="screen">
+    <div id="result"></div>
+    <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn sec" onclick="window.print()">Сохранить / распечатать</button>
+      <button class="btn sec" id="reset">Пройти заново</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="bar">
+  <span class="cnt" id="cnt">Отмечено: 0</span>
+  <button class="btn" id="next" disabled>Дальше →</button>
+</div>
+
+<script>
+const HOUSES = [
+{
+  id:"mus", name:"Мышечный вектор", chakra:"Муладхара", root:"отсутствие «Я»", partner:"Кожный",
+  move:"Лечит кожный, добавленный чисто: дисциплина, режим, форма. Силе — дать форму и дело: тело не «тянет одно за всех», а работает в своём режиме и в команде.",
+  cards:[
+    {t:"Физическое насилие и нападение", d:"Страх, что вас ударят, заденут силой, придавят — как телом, так и обстоятельствами. Это страх мышечного дома: тело помнит угрозу как давление.", ex:["Дрожите, когда кто-то кричит или стучит по столу.","Обходите компанию агрессивно выглядящих людей, ускоряете шаг."], fears:["Нападения, драки, физической угрозы","Крика, агрессии в свой адрес","Быть придавленным, зажатым в толпе или транспорте"]},
+    {t:"Бессилие перед обстоятельствами", d:"Страх, что сил не хватит: вы один, а всё на вас, и тело подведёт. Корень дома — отсутствие «Я», тьма — беспомощность.", ex:["Откладываете сложный разговор до «соберётесь с силами».","После тяжёлого дня чувствуете не усталость, а опустошённость."], fears:["Что сил не хватит на то, что нужно нести","Что в критический момент тело подведёт","Просить о помощи — «сам справлюсь» или «никто не поможет»"]},
+    {t:"Унижение и подчинение", d:"Страх быть «поставленным на место» — начальством, родственниками, обстоятельствами. Унижение — боль мышечного дома.", ex:["При общении со строгим начальником сжимаются плечи и кулаки.","Не спорите с теми, кто старше и сильнее, даже когда неправы."], fears:["Унижения, насмешки над телом или силой","Публичного подчинения — «при всех поставят на место»","Приказа, которому нельзя возразить"]}
+  ]
+},
+{
+  id:"skin", name:"Кожный вектор", chakra:"Муладхара + Манипура", root:"жадность", partner:"Мышечный",
+  move:"Лечит мышечный, добавленный чисто: телесность, движение, спонтанность. Границу — оживить телом: не «броня», а живой тактильный контакт и дело руками.",
+  cards:[
+    {t:"Потеря денег и нужда", d:"Страх не хватить, потерять, остаться без средств. Корень дома — жадность; её тьма — нужда: «не хватает».", ex:["Пересчитываете счета перед сном, хотя всё оплачено.","Не можете позволить себе покупку, которую легко можете себе позволить."], fears:["Обнищания, нищеты, нужды","Потери работы или источника дохода","Инфляции, обесценивания накоплений"]},
+    {t:"Потеря имущества и обман в сделках", d:"Страх, что ваше отнимут: кража, развод в сделке, потеря вещи. Боль дома — «потеря; жадность разрушает».", ex:["Дважды проверяете договор перед подписью.","Покупали страховку на телефон не ради спокойствия, а ради страха потери."], fears:["Кражи, потери имущества","Обмана в сделках, «развода»","Финансовой ошибки, которую нельзя исправить"]},
+    {t:"Пробитые границы", d:"Страх вторжения: в личное пространство, время, обещания. Кожа — граница; её пробитие — онемение.", ex:["Дискомфортно, когда кто-то берёт ваши вещи без спроса.","Соглашаетесь — а потом злитесь, что нарушили ваши планы."], fears:["Вторжения в личное пространство и время","Что вас будут «продавливать» и не услышат «нет»","Что ваши секреты или вещи станут чужими"]},
+    {t:"Хаос и потеря контроля", d:"Страх, что всё выйдет из-под контроля: планы рухнут, система не сработает. Гиперконтроль — тьма этого дома.", ex:["Неизвестность расписания вызывает раздражение сильнее, чем плохое известие.","Планируете отпуск по часам."], fears:["Хаоса, неопределённости, внезапных изменений","Потери контроля над ситуацией","Делегировать — «сделают хуже»"]},
+    {t:"Зависимость от чужой воли", d:"Страх оказаться привязанным: без права выбора, в чужой опоре. Пара дома — зависимость ↔ свобода.", ex:["В отношениях замечаете, что «не выжить без человека» — и пугаетесь этого.","Отказываетесь от помощи, чтобы не «попасть в долг»."], fears:["Эмоциональной или финансовой зависимости от человека","Лишиться выбора, свободы решать","Оказаться «запертым» в отношениях или обязательствах"]}
+  ]
+},
+{
+  id:"anal", name:"Анальный вектор", chakra:"Свадхистхана + Манипура", root:"обида", partner:"Уретральный",
+  move:"Лечит уретральный, добавленный чисто: поток, порыв, спонтанность. Застреванию — дать движение: сделать шаг до того, как всё выверено.",
+  cards:[
+    {t:"Ошибка и её цена", d:"Страх сделать неправильно: раз испортил — навсегда. Вина и стыд — базовые тьмы дома.", ex:["Перечитываете письмо 10 раз перед отправкой.","Возврат денег за лишнюю покупку — нестрашно; ошибиться в главном решении — нельзя."], fears:["Сделать непоправимую ошибку","Оказаться виноватым перед людьми","Получить «не ту» оценку своих действий"]},
+    {t:"«Всё рассыпется» — потеря порядка", d:"Страх, что порядок рухнет: место, семья, план, чистота. Распад порядка — тьма Ac.", ex:["Стало сложно жить, когда порядок в доме нарушился.","Незакрытые дела «скребут» — не можете расслабиться, пока всё не разложено."], fears:["Хаоса в доме, делах, документах","Грязи, беспорядка, заражения","Что «незавершённое» останется навсегда"]},
+    {t:"Обида, предательство, измена", d:"Страх, что предадут те, кому доверился. Корень дома — обида; Ур.2 — верность («за мной как за стеной»).", ex:["Долго не доверяете после одного случая предательства.","Измена близкого — не боль, а «обвал мира»."], fears:["Предательства, измены близких","Обмана друга, партнёра","Что доверие не восстановится"]},
+    {t:"Прошлое: сожаление и «зря»", d:"Стросать с ушедшим: «я мог иначе». Отчаяние-о-прошлом — тьма дома.", ex:["Ночью прокручиваете разговоры десятилетней давности.","Не можете простить себе упущенный шанс."], fears:["Сожаления о прожитом — «зря жил»","Осуждения за прошлое","Что прошлое повторится"]},
+    {t:"Критика и осуждение", d:"Страх чужой оценки как приговора: «меня увидят — и поймут, что я не идеален».", ex:["Прячете работу до идеала — «ещё не готово».","Одно замечание помните месяцами."], fears:["Критики, насмешки, осуждения","Быть «плохим» в чьих-то глазах","Не соответствовать ожиданиям"]},
+    {t:"Время: опоздать, не успеть", d:"Страх упустить: дедлайн, срок, «поздно начинать». Механорецепторы дома — ощущение времени.", ex:["Паника при опоздании, даже на 5 минут.","«Уже поздно» — не начинаете учиться, менять работу."], fears:["Опоздать, не успеть","Что будет «уже поздно» — для дела, выбора, жизни","Дедлайнов и срыва сроков"]}
+  ]
+},
+{
+  id:"uretr", name:"Уретральный вектор", chakra:"Свадхистхана", root:"жажда жизни", partner:"Анальный",
+  move:"Лечит анальный, добавленный чисто: порыв, спонтанность, «просто сделай». А застрявшему страху высоты/воды — дать поток, в котором тело вспоминает, что оно умеет плыть.",
+  cards:[
+    {t:"Высота, вода, поток", d:"Страх, который для уретрального — свалившийся с лестницы порыв: трусость перед потоком (Lv). Не «боязнь», а «ноги не держат».", ex:["На мосту или эскалаторе «съезжает» пол под ногами.","В воде замираете, хотя умеете плавать."], fears:["Высоты, падения, головокружения","Глубины, воды, «не удержаться»","Быстроты: скорость, потоки машин, толпа в движении"]},
+    {t:"Потерять направление", d:"Страх, что порыв не найдёт русла: паника без цели, «не знаю, куда идти». Паника — без направления.", ex:["В отпуске без дел — тревога нарастает.","Когда всё «окей», всё равно грызёт: «а дальше?»."], fears:["Потери смысла, направления движения","Паники «непонятно чего»","Застоя: «энергия есть — а куда её?»"]},
+    {t:"Не успеть спасти, не обеспечить", d:"Страх за стаю: близкие, команда, «не успел спасти». Долг уретрального — отдать.", ex:["Боитесь не за себя, а за тех, кого ведёте.","Неудача в обеспечении семьи бьёт сильнее личной."], fears:["Не успеть спасти близких","Не обеспечить, «не вытянуть» тех, кто на вас","Быть причиной чужой беды"]},
+    {t:"Клетка: ограничение свободы", d:"Страх запертости: нельзя двинуться, нельзя прорваться. Иллюзия свободы — Te — против него.", ex:["Слово «должен» вызывает внутри рёв.","Долгие обязательства давят сильнее, чем тяжёлый труд."], fears:["Запертости: обязательств, расписаний, рамок","Потери контроля над своей жизнью","«Застрять» навсегда в том, что не ваше"]},
+    {t:"Выгорание: сгореть дотла", d:"Страх, что отдача съест вас: «горю для всех» — и внутри пустота. Выгорание — тьма Ce.", ex:["После месяцев альтруизма — обвал и «ничего не хочу».","Просыпаетесь усталым от дел, которых ещё не делали."], fears:["Выгорания, «сгореть на работе/в семье»","Что отдавать больше некому нечем","Опустошения после пикового усилия"]}
+  ]
+},
+{
+  id:"olf", name:"Обонятельный вектор", chakra:"Аджна", root:"презрение", partner:"Оральный",
+  move:"Лечит оральный, добавленный чисто: слово, доверие, речь. Чутьё — обогреть словом: не «читать намерения», а спрашивать прямо и слышать ответ.",
+  cards:[
+    {t:"«Все против меня»", d:"Страх тотальной настороженности: каждое слово — заговор. Это Og — за пределами чакр: отмечайте, только если это про вас прямо сейчас.", ex:["Пересуды коллег воспринимаете как заговор.","Каждая фраза близкого перечитывается как подвох."], fears:["Заговора, скрытого намерения против вас","То, что «все втайне против»","Скрытой угрозы там, где её нет"], flag:"extreme", el:"Og (118)"},
+    {t:"Не заметить угрозу", d:"Страх, что чутьё промолчит: внезапная катастрофа, «не предвидел». Rn — предубеждение.", ex:["Перепроверяете «а не забыл ли я про…» по двадцать раз.","Ночная тревога: «что-то упустил»."], fears:["Внезапной катастрофы, которую не предвидели","Пропустить опасность: болезнь, аварию, подставу","Ложного спокойствия — «оно придёт оттуда, где не жду»"]},
+    {t:"Свой станет чужим", d:"Страх потери своих: человек «перейдёт на другую сторону». Презрение и предубеждение — тьма чутья.", ex:["Ревностно следите, «чья теперь команда» у близких.","Уходящего друга воспринимаете как перебежчика."], fears:["То, что близкий «перейдёт» на чужую сторону","Потери команды, круга, «своих»","Разделения мира на «свой/чужой» — и остаться по ту сторону"]}
+  ]
+},
+{
+  id:"oral", name:"Оральный вектор", chakra:"Вишуддха", root:"ненасытность", partner:"Обонятельный",
+  move:"Лечит обонятельный, добавленный чисто: чутьё к людям, доверие к «своим». Слову — дать адресата: говорить не «в пустоту», а человеку, которого вы почуяли.",
+  cards:[
+    {t:"Страх слова", d:"Страх заговорить: «язык отнялся», скажу не то, осмеют. Молчание — Fl; логорея — Nd.", ex:["В важный момент слова «проваливаются» — не сказать, что надо.","Разговор с незнакомцем — стресс, «что сказать-то?»"], fears:["Заговорить перед людьми — «не выговорить»","Сказать не то, «вляпаться» словом","Молчания, когда надо говорить"]},
+    {t:"Быть высмеянным, «меня не слушают»", d:"Страх пустого внимания: говорить — и не быть услышанным. Провал выступления — боль Rg.", ex:["Выступление перед аудиторией — «провалюсь».","В компании чувствуете: «мои слова пролетают»."], fears:["Быть высмеянным за слова","Говорить и не быть услышанным","Публичного провала речи"]},
+    {t:"Пустота: «занять нечем»", d:"Страх пустоты: «рот занять нечем» — заедание, бесконечный телефон, болтовня. Ге — «сладкое = безопасность».", ex:["Тянет к еде, когда тревожно — не от голода.","Телефон в руках «от нечего делать» — без него тревога."], fears:["Пустоты — «нечем занять»","Зависимостей: еда, покупки, телефон, болтовня","Скуки как угрозы — «если скучно, значит, я пуст»"]}
+  ]
+},
+{
+  id:"sound", name:"Звуковой вектор", chakra:"Аджна + Сахасрара", root:"пустота", partner:"Зрительный",
+  move:"Лечит зрительный, добавленный чисто: смысл, расчёт, «переведи страх в формулу». А пустоте — дать чувство: смысл без красоточувствия — сухая тоска.",
+  cards:[
+    {t:"Бессмысленность и пустота", d:"Страх «зачем всё»: тоска, апатия, пустота как главная тьма дома. Это страх звукового — не про события, а про отсутствие смысла.", ex:["Ночью ловите «а в чём смысл всего этого?» — и не можете уснуть.","Достижение цели не радует — внутри всё равно пусто."], fears:["Пустоты, бессмысленности жизни","Тоски, «ничего не хочу, ничего не надо»","Что «смысл никогда не найдётся»"]},
+    {t:"Сойти с ума", d:"Страх потерять контроль над мышлением: мысли закружат, «не смогу остановить». Навязчивости — La, галлюцинации — Tm.", ex:["Мысли крутятся по кругу — не выключаются даже во сне.","Страх «а вдруг я перестану понимать, что реальность»."], fears:["Сойти с ума, потерять рассудок","Навязчивых мыслей, которые не выключить","Потери контроля над собой"]},
+    {t:"Тишина как смерть", d:"Страх остаться наедине с пустотой: «звука больше нет никогда». Край тьмы — Lr.", ex:["Без фона, музыки, разговора — тревога.","Страх одиночества не «нет людей», а «нет звука в голове»."], fears:["Тишины, одиночества наедине с собой","Что «в голове замолчит — и всё»","Быть полностью изолированным"]},
+    {t:"Фантомы: «слышу то, чего нет»", d:"Галлюцинации слуха, «голоса», иллюзия истины. Ho — фантом; Ts — суррогаты. Отмечайте, если это про вас прямо сейчас.", ex:["Слышите «тонкий» голос, которого никто не произносил.","«Открыл истину», которая рассыпается при проверке."], fears:["Слышать то, чего нет","Верить иллюзии, «открыть ложную истину»","Потерять границу между «думано» и «слышано»"], flag:"extreme", el:"Ho (67), Ts (117)"}
+  ]
+},
+{
+  id:"visual", name:"Зрительный вектор", chakra:"Анахата", root:"страх", partner:"Звуковой",
+  move:"Лечит звуковой, добавленный чисто: смысл и расчёт. Формула из системы: «тревожному — перевести страх в расчёт». Страх не убрать — его вычислить: что, когда, с какой вероятностью.",
+  cards:[
+    {t:"Смерть и умирание", d:"Главный страх зрительного дома: смерть своя и чужая. Танатофобия.", ex:["Засыпаете с мыслью «а если не проснусь».","Врач сказал «норма» — а мысль о смерти всё равно не отпускает."], fears:["Собственной смерти","Смерти близких","Похорон, кладбищ, атрибутов смерти"]},
+    {t:"Болезни, боль, врачи", d:"Страх болезни и боли: нозофобия, ятрофобия, трипанофобия. Тело зрительного «слышит» угрозу через сердце.", ex:["Каждое покалывание — «а вдруг это то самое».","Откладываете врача до последнего: «не хочу знать»."], fears:["Тяжёлой болезни — своей или близких","Боли, уколов, врачей, крови","Заражения, микробов, грязи"]},
+    {t:"Конкретные фобии", d:"Точечные страхи: высота, пауки, замкнутые пространства, темнота, вода. Классические фобии — прямая принадлежность зрительного дома.", ex:["Спускаетесь по лестнице «спиной», но этаж пятый — уже «мокро».","В закрытом вагоне метро «стены сжимаются»."], fears:["Высоты, глубины, падения","Пауков, змей, насекомых, животных","Замкнутых или открытых пространств","Темноты, ночи, сна без света","Воды, купания, глубины"]},
+    {t:"Отвержение и покинутость", d:"Страх «меня бросят»: не важен, не нужен. Dy — «посмотрите на меня»; Bk — отверженность.", ex:["Неответное сообщение на 3 часа — «я ему безразличен».","В отношениях всё время ждёте конца."], fears:["Отвержения, покинутости — «меня бросят»","Ненужности, «я не важен»","Быть последним, невостребованным"]},
+    {t:"Оценка и насмешка (социофобия)", d:"Страх чужих глаз: «что подумают». Скоптофобия, глоссофобия. Самый распространённый страх социального слоя.", ex:["Не задаёте вопросы «на людях» — «а вдруг глупый».","После разговора прокручиваете: «что они обо мне подумали?»."], fears:["Оценки, осуждения, насмешки","Публичных выступлений, «опозориться»","Внимания к себе в толпе","Быть «не таким», странным"]},
+    {t:"Потеря близких", d:"Страх утраты тех, без кого не дышится. Отдельно от страха смерти — часто самый сильный страх зрительного.", ex:["Малейшая задержка близкого — «а вдруг что-то случилось».","При мыслях о возможной утрате перехватывает дыхание."], fears:["Потери родителей, детей, партнёра","Разлуки с близкими","«Остаться одному без них»"]},
+    {t:"Ослепление красотой", d:"Страх «света»: восторг так силён, что превращается в тьму — «вижу только тьму» (Mc). Редкий, но важный страх дома.", ex:["От сильной любви или красоты — «сердце захватывает до страха».","В восторге ловите панику: «это слишком — я не выдержу»."], fears:["Слишком сильного чувства — любви, восторга","Быть «ослеплённым», потерять себя в другом","Красоты, которая «слишком большая»"], flag:"extreme", el:"Mc (115)"}
+  ]
+}
+];
+
+const INT_OPTS = [
+  {v:"stress",  label:"Вспышками, в моменте — испуг, короткая дрожь, потом отпускает", stage:"Стресс (острая)", el:{visual:"P (15)",mus:"K (19)",skin:"Ca (20)",anal:"Ga (31)",uretr:"S (16)",oral:"Si (14)",sound:"Cl (17)",olf:"Ar (18)"}},
+  {v:"panic",   label:"Паническими приступами — сердце, нехватка воздуха, «сейчас случится»", stage:"Стресс острый (паника)", el:{visual:"P (15)",mus:"K (19)",skin:"Ca (20)",anal:"Ga (31)",uretr:"S (16)",oral:"Si (14)",sound:"Cl (17)",olf:"Ar (18)"}},
+  {v:"frustr",  label:"Разлитой фоном — тревога без адреса, «нечто может случиться»", stage:"Фрустрация (застрявшая)", el:{visual:"As (33)",mus:"Rb (37) / Fe (26)",skin:"Sr (38) / Ti (22)",anal:"In (49) / Y (39)",uretr:"Po (84) / Ce (58)",oral:"Ge (32) / Sn (50)",sound:"Br (35) / I (53)",olf:"Xe (54) / Kr (36)"}},
+  {v:"trait",   label:"Всегда со мной — стало чертой, «я просто такой человек»", stage:"Невроз (тьма-черта)", el:{visual:"Bk (97)",mus:"Cs (55)",skin:"Hf (72) / Ra (88)",anal:"Tl (81) / La (57)",uretr:"Lv (116)",oral:"Fl (114) / Nd (60)",sound:"Tm (69)",olf:"Og (118)"}},
+  {v:"paral",   label:"Парализует — избегаю, не делаю, не выхожу", stage:"Невроз (зафиксированный страх)", el:{visual:"Bk (97)",mus:"Cs (55)",skin:"Hf (72)",anal:"La (57)",uretr:"Lv (116)",oral:"Fl (114)",sound:"Tm (69)",olf:"Og (118)"}}
+];
+
+let state = {}; // cardId -> {vec, fears:[], own:[]}
+let state2 = {}; // vec -> int value
+let houseEls = {};
+
+function load(){ try{ const s=JSON.parse(localStorage.getItem("fearmap")||"{}"); if(s.state) state=s.state; if(s.state2) state2=s.state2; }catch(e){} }
+function save(){ localStorage.setItem("fearmap", JSON.stringify({state, state2})); }
+
+function render(){
+  const host = document.getElementById("houses");
+  host.innerHTML = "";
+  HOUSES.forEach(h=>{
+    const hdiv = document.createElement("div");
+    hdiv.className = "house";
+    hdiv.innerHTML = `<h2>${h.name}</h2><div class="meta">${h.chakra} · корень: ${h.root} · лечит партнёр: ${h.partner}</div>`;
+    const wrap = document.createElement("div");
+    h.cards.forEach((c,i)=>{
+      const id = h.id+"_"+i;
+      const div = document.createElement("div");
+      div.className = "card";
+      const flagTxt = c.flag==="extreme" ? ` <span class="pill">за пределами чакр: ${c.el}</span>` : "";
+      div.innerHTML = `<button>${c.t}${flagTxt}</button>
+        <div class="body">
+          <div class="desc">${c.d}</div>
+          <ul class="ex">${c.ex.map(e=>`<li>${e}</li>`).join("")}</ul>
+          <div class="fears" data-card="${id}" data-vec="${h.id}"></div>
+          <div class="own"><input type="text" placeholder="Свой страх — по одному" data-own="${id}"><button data-add="${id}" data-vec="${h.id}">Добавить</button></div>
+        </div>`;
+      const fearsEl = div.querySelector(".fears");
+      c.fears.forEach((f,j)=>{
+        const fid = id+"_"+j;
+        const lab = document.createElement("label");
+        lab.className = "fear";
+        lab.innerHTML = `<input type="checkbox" data-fid="${fid}" data-vec="${h.id}" data-card="${id}"><span>${f}</span>`;
+        const inp = lab.querySelector("input");
+        const st = state[id];
+        if(st && (st.fears.includes(fid) || st.own.includes(fid))) { inp.checked = true; lab.classList.add("sel"); }
+        fearsEl.appendChild(lab);
+      });
+      wrap.appendChild(div);
+    });
+    hdiv.appendChild(wrap);
+    host.appendChild(hdiv);
+    houseEls[h.id]=h;
+  });
+  host.addEventListener("click", e=>{
+    const btn = e.target.closest(".card>button");
+    if(btn){ btn.parentElement.classList.toggle("open"); return; }
+    const fear = e.target.closest(".fear");
+    if(fear){
+      const inp = fear.querySelector("input");
+      const st = state[fear.dataset.card] || {vec:fear.dataset.vec, fears:[], own:[]};
+      if(inp.checked){ inp.checked=false; fear.classList.remove("sel"); st.fears = st.fears.filter(x=>x!==fear.dataset.fid); }
+      else{ inp.checked=true; fear.classList.add("sel"); if(!st.fears.includes(fear.dataset.fid)) st.fears.push(fear.dataset.fid); }
+      if(st.fears.length===0 && st.own.length===0) delete state[fear.dataset.card];
+      else state[fear.dataset.card]=st;
+      save(); updateCount(); return;
+    }
+    const add = e.target.closest("[data-add]");
+    if(add){
+      const card = add.dataset.add, vec = add.dataset.vec;
+      const input = document.querySelector(`[data-own="${card}"]`);
+      const txt = input.value.trim();
+      if(!txt) return;
+      const st = state[card] || {vec, fears:[], own:[]};
+      st.own.push(txt);
+      state[card]=st; save();
+      const lab = document.createElement("label");
+      lab.className="fear sel";
+      lab.innerHTML = `<input type="checkbox" checked data-own-idx="${st.own.length-1}" data-card="${card}"><span>${txt}</span>`;
+      document.querySelector(`.fears[data-card="${card}"]`).appendChild(lab);
+      input.value=""; updateCount();
+    }
+  });
+  host.addEventListener("change", e=>{
+    const own = e.target.closest("[data-own-idx]");
+    if(own){
+      const card = own.dataset.card, idx = parseInt(own.dataset.ownIdx);
+      const st = state[card]; if(!st) return;
+      if(!own.checked){ st.own.splice(idx,1); own.closest(".fear").remove(); if(st.fears.length===0&&st.own.length===0) delete state[card]; save(); updateCount(); }
+    }
+  });
+  updateCount();
+}
+
+function updateCount(){
+  let n=0; Object.values(state).forEach(s=>n+=s.fears.length+s.own.length);
+  document.getElementById("cnt").textContent = "Отмечено: "+n;
+  document.getElementById("next").disabled = n===0;
+}
+
+function renderIntens(){
+  const host = document.getElementById("intens");
+  host.innerHTML="";
+  let any=false;
+  HOUSES.forEach(h=>{
+    let n=0; Object.entries(state).forEach(([k,v])=>{ if(v.vec===h.id) n+=v.fears.length+v.own.length; });
+    if(n===0) return; any=true;
+    const div = document.createElement("div");
+    div.className="int-row";
+    let cur = state2[h.id]||"";
+    div.innerHTML = `<h3>${h.name} <span class="hint">(${n} отмеченных страх(ов))</span></h3>
+      <div class="picked">корень: ${h.root} · чакра: ${h.chakra}</div>
+      <div class="scale">` + INT_OPTS.map((o,i)=>`<label><input type="radio" name="int_${h.id}" value="${o.v}" ${cur===o.v?"checked":""}><span>${o.label}</span></label>`).join("") + `</div>`;
+    host.appendChild(div);
+  });
+  if(!any) host.innerHTML = `<p class="sub">Вы не отметили ни одного страха — вернитесь назад и выберите то, что про вас.</p>`;
+  host.onchange = e=>{
+    const r = e.target.closest("input[type=radio]");
+    if(r){ const vec = r.name.replace("int_",""); state2[vec]=r.value; save(); }
+  };
+}
+
+function renderResult(){
+  const host = document.getElementById("result");
+  const rows = [];
+  let extreme = [];
+  let lead = null, leadN = -1;
+  HOUSES.forEach(h=>{
+    let n=0; Object.entries(state).forEach(([k,v])=>{ if(v.vec===h.id) n+=v.fears.length+v.own.length; });
+    const st = state2[h.id];
+    const row = {h, n, st};
+    rows.push(row);
+    if(n>0){
+      if(st) { if(n>leadN){ leadN=n; lead=row; } }
+      Object.entries(state).forEach(([k,v])=>{
+        if(v.vec!==h.id) return;
+        const card = h.cards[k.split("_")[1]];
+        if(card && card.flag==="extreme") extreme.push(card.t+" ("+card.el+")");
+        v.own.forEach(()=>{});
+      });
+    }
+  });
+  // extreme detection for own-added (свои, добавленные в дом с флаговыми карточками) — флаги считаем по карточкам
+  let html = `<h1>Ваш результат</h1>`;
+  if(extreme.length){
+    html += `<div class="warnbox"><b>Внимание:</b> среди отмеченного есть состояния «за пределами чакр» — ${extreme.join(", ")}. По системе их не «прорабатывают»: из них только выходят — возвращаются в зону 108 развиваемых: тело, сон, еда, простой контакт с живым человеком. Если это стойкое состояние — это уже работа со специалистом, не одиночных практик.</div>`;
+  }
+  if(lead){
+    const h = lead.h;
+    const opt = INT_OPTS.find(o=>o.v===lead.st);
+    const elName = opt ? opt.el[h.id] : "—";
+    html += `<div class="lead"><b>Ведущий дом разлома: ${h.name}.</b> Больше всего страхов отмечено здесь (${lead.n}). Корень — ${h.root}, чакра — ${h.chakra}. Доминирующая стадия: ${opt?opt.stage:"не выбрана"} (элемент: ${elName}).</div>`;
+  } else {
+    html += `<div class="lead">Страхи отмечены, но ступени не выбраны — вернитесь на экран «Как это накрывает?».</div>`;
+  }
+  html += `<h2 style="margin-top:22px">Профиль по векторам</h2>`;
+  html += `<table class="res-table"><tr><th>Вектор</th><th>Страхов</th><th>Стадия / ступень</th><th>Элемент</th><th>Что лечит</th></tr>`;
+  rows.forEach(r=>{
+    const opt = r.st ? INT_OPTS.find(o=>o.v===r.st) : null;
+    const el = opt ? opt.el[r.h.id] : "—";
+    const stage = opt ? opt.stage : (r.n>0? "ступень не выбрана":"не выявлен");
+    const cure = r.n>0 ? r.h.move.split(".")[0] : "—";
+    html += `<tr${r===lead?' style="background:#efeaff"':''}><td><b>${r.h.name}</b><br><span class="hint">${r.h.chakra}</span></td><td>${r.n}</td><td>${stage}</td><td>${el}</td><td>${cure}</td></tr>`;
+  });
+  html += `</table>`;
+  html += `<h2 style="margin-top:22px">Куда идти дальше</h2><ul>`;
+  rows.filter(r=>r.n>0).forEach(r=>{
+    html += `<li><b>${r.h.name}:</b> ${r.h.move}</li>`;
+  });
+  html += `</ul>`;
+  const leadOpt = lead && lead.st ? INT_OPTS.find(o=>o.v===lead.st) : null;
+  if(lead && lead.st && (lead.st==="stress"||lead.st==="panic")){
+    html += `<div class="lead" style="border-left-color:#4b7a4b">Хороший знак: ведущая реакция — острая, а не застрявшая. Острые страхи переучиваются быстрее всего: тело помнит испуг — и может отучиться. Для зрительного дома путь вверх по лестнице — Осторожность → Трепет → Решимость → Смелость (элемент C — «вершина достижима»).</div>`;
+  }
+  html += `<p class="hint">Опросник покрывает только страхи. Полный векторальный профиль включает и светлые состояния каждого дома — для этого нужен разбор по всем 8 векторам, а не только по лестнице страха. Этот результат — отправная точка Дня 1, а не диагноз.</p>`;
+  host.innerHTML = html;
+}
+
+load();
+render();
+
+document.getElementById("next").onclick = ()=>{
+  document.getElementById("s1").classList.remove("active");
+  renderIntens();
+  document.getElementById("s2").classList.add("active");
+  window.scrollTo(0,0);
+};
+document.getElementById("toRes").onclick = ()=>{
+  document.getElementById("s2").classList.remove("active");
+  renderResult();
+  document.getElementById("s3").classList.add("active");
+  window.scrollTo(0,0);
+};
+document.getElementById("reset").onclick = ()=>{
+  state={}; state2={}; save();
+  document.getElementById("s3").classList.remove("active");
+  document.getElementById("s1").classList.add("active");
+  render(); window.scrollTo(0,0);
+};
+</script>
+</body>
+</html>
