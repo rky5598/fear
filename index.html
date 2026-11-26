@@ -5,21 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Карта страхов — опросник Дня 1</title>
 <style>
-:root{--bg:#0f1220;--card:#1a1f33;--card2:#232a45;--txt:#e8ebf5;--dim:#9aa3c0;--acc:#7fa6ff;--ok:#6fe0a8;--bad:#ff7b8a}
+:root{--bg:#0f1220;--card:#1a1f33;--card2:#232a45;--txt:#e8ebf5;--dim:#9aa3c0;--acc:#7fa6ff;--ok:#6fe0a8;--bad:#ff7b8a;--line:#2a3355;--line2:#3a466f;--bar:#151930;--th:#1a2038;--inp:#12162a;--optsel:#1c2444;--warn:#2a1c1c}
+body.light{--bg:#f4f6fb;--card:#ffffff;--card2:#eef1f8;--txt:#1c2333;--dim:#5c6580;--acc:#2f6bdd;--ok:#188a55;--bad:#d64555;--line:#e2e7f4;--line2:#c9d2ea;--bar:#ffffff;--th:#eef1f8;--inp:#ffffff;--optsel:#e8effc;--warn:#fdeeee}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;padding-bottom:80px}
 .wrap{max-width:820px;margin:0 auto;padding:20px 16px}
-h1{font-size:1.5em;margin:.2em 0}
+h1{font-size:1.5em;margin:.2em 0;padding-right:56px}
 h2{font-size:1.2em;margin:1.2em 0 .4em}
 .sub{color:var(--dim)}
-.bar{position:fixed;bottom:0;left:0;right:0;background:#151930;border-top:1px solid #2a3355;padding:10px 16px;display:flex;gap:10px;justify-content:center;z-index:10}
+.bar{position:fixed;bottom:0;left:0;right:0;background:var(--bar);border-top:1px solid var(--line);padding:10px 16px;display:flex;gap:10px;justify-content:center;z-index:10}
 button{background:var(--acc);color:#0b1030;border:none;border-radius:10px;padding:12px 22px;font-size:1em;font-weight:600;cursor:pointer}
 button:disabled{opacity:.35;cursor:default}
 button.ghost{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+#gtheme{position:fixed;top:14px;right:14px;z-index:20;width:44px;height:44px;padding:0;border-radius:50%;font-size:1.2em;line-height:1}
 .vhead{margin:1.4em 0 .5em;padding:10px 14px;border-left:4px solid var(--acc);background:var(--card);border-radius:8px}
 .vhead b{font-size:1.05em}
 .vhead .m{color:var(--dim);font-size:.9em}
-.card{background:var(--card);border:1px solid #2a3355;border-radius:12px;margin:10px 0;overflow:hidden}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
 .card-h{padding:13px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
 .card-h:hover{background:var(--card2)}
 .card-h .arr{color:var(--dim);transition:.2s}
@@ -27,24 +29,43 @@ button.ghost{background:transparent;color:var(--acc);border:1px solid var(--acc)
 .card-body{display:none;padding:0 16px 14px}
 .card.open .card-body{display:block}
 .card-body p{margin:.4em 0;color:var(--txt)}
-.card-body .ex{color:var(--dim);font-size:.93em;margin:.5em 0;padding-left:12px;border-left:2px solid #3a466f}
-.chip{display:inline-block;margin:4px 6px 0 0;padding:7px 13px;border:1px solid #3a466f;border-radius:20px;cursor:pointer;font-size:.92em;user-select:none;transition:.15s}
+.card-body .ex{color:var(--dim);font-size:.93em;margin:.5em 0;padding-left:12px;border-left:2px solid var(--line2)}
+.chip{display:inline-block;margin:4px 6px 0 0;padding:7px 13px;border:1px solid var(--line2);border-radius:20px;cursor:pointer;font-size:.92em;user-select:none;transition:.15s}
+.chip:hover{border-color:var(--acc)}
 .chip.sel{background:var(--acc);color:#0b1030;border-color:var(--acc);font-weight:600}
+.chip .wtag{font-size:.78em;font-weight:400;opacity:.85;margin-left:6px}
+body.light .chip.sel{color:#fff}
 .badge{display:inline-block;font-size:.75em;padding:2px 8px;border-radius:8px;background:var(--bad);color:#fff;margin-left:8px;vertical-align:middle}
 .addrow{margin-top:10px;display:flex;gap:8px}
-.addrow input{flex:1;background:#12162a;border:1px solid #3a466f;color:var(--txt);border-radius:8px;padding:9px 12px;font-size:.95em}
+.addrow input{flex:1;background:var(--inp);border:1px solid var(--line2);color:var(--txt);border-radius:8px;padding:9px 12px;font-size:.95em}
+.addrow button{padding:9px 16px}
 .count{color:var(--ok);font-size:.85em;margin-left:8px}
-.opt{display:block;margin:8px 0;padding:12px 14px;border:1px solid #3a466f;border-radius:10px;cursor:pointer}
-.opt.sel{border-color:var(--acc);background:#1c2444}
+.opt{display:block;margin:8px 0;padding:12px 14px;border:1px solid var(--line2);border-radius:10px;cursor:pointer}
+.opt:hover{border-color:var(--acc)}
+.opt.sel{border-color:var(--acc);background:var(--optsel)}
 table{width:100%;border-collapse:collapse;margin:12px 0}
-th,td{border:1px solid #2a3355;padding:8px 10px;text-align:left;font-size:.93em}
-th{background:#1a2038}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;font-size:.93em}
+th{background:var(--th)}
 .lead{background:var(--card);border-left:4px solid var(--ok);border-radius:8px;padding:14px 16px;margin:14px 0}
-.warnbox{background:#2a1c1c;border-left:4px solid var(--bad);border-radius:8px;padding:12px 16px;margin:12px 0}
-@media print{.bar{display:none}body{background:#fff;color:#000}.card,.vhead,table td,table th{border-color:#999}}
+.warnbox{background:var(--warn);border-left:4px solid var(--bad);border-radius:8px;padding:12px 16px;margin:12px 0}
+.wbar{height:8px;border-radius:4px;background:var(--acc);margin:4px 0 10px;min-width:2px}
+.frow{padding:8px 10px;border-bottom:1px solid var(--line);font-size:.93em}
+.frow:last-child{border-bottom:none}
+.frow .m{color:var(--dim);font-size:.88em}
+.mw{position:fixed;inset:0;background:rgba(5,8,18,.65);display:none;align-items:flex-start;justify-content:center;z-index:50;padding:20px 14px;overflow:auto}
+.mw.show{display:flex}
+.mbox{background:var(--card);border:1px solid var(--line);border-radius:14px;max-width:560px;width:100%;padding:20px;margin:auto}
+.mbox h3{margin:.1em 0 .2em;font-size:1.1em}
+.mbox .mv{color:var(--dim);font-size:.88em;margin-bottom:12px}
+.mq{font-weight:600;margin:14px 0 4px}
+.mbtns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.mbtns button{padding:10px 18px}
+@media (max-width:560px){.mbtns button{flex:1 1 auto}}
+@media print{.bar,#gtheme,.mw{display:none}body{background:#fff;color:#000}.card,.vhead,table td,table th{border-color:#999}body.light,body{--bg:#fff}}
 </style>
 </head>
 <body>
+<button id="gtheme" title="Переключить тему">☀️</button>
 <div class="wrap">
 <h1>🧭 Карта страхов — опросник Дня 1</h1>
 <p class="sub">Отмечайте только то, что про вас. Выбор сохраняется автоматически — можно вернуться и дополнить.</p>
@@ -52,9 +73,10 @@ th{background:#1a2038}
 </div>
 <div class="bar">
 <button class="ghost" id="bBack">← Назад</button>
-<button id="bNext">Далее →</button>
+<button id="bNext">Показать результат →</button>
 <button class="ghost" id="bReset">Сброс</button>
 </div>
+<div id="modal" class="mw"><div class="mbox" id="mbox"></div></div>
 <script>
 const DATA = {
 mysh:{name:"Мышечный",chakra:"Муладхара",root:"отсутствие «Я»",partner:"Кожный",
@@ -124,114 +146,171 @@ cards:[
 };
 
 const BEYOND_CARDS = new Set(["«Все против меня» (паранойя)","Ослепление: «свет поглотил»","Высота, вода, скорость (малодушие)"]);
-const REACTS = [
-["Вспышкой — испуг, дрожь, резкий импульс","Стресс (острая)"],
-["Паническим приступом — тело в панике","Стресс (паника)"],
-["Тревогой фоном — без адреса, постоянно","Фрустрация"],
-["Как черта — «я просто такой человек»","Невроз"],
-["Парализует — не могу двигаться, выйти, начать","Невроз (ригидный)"]
+const TYPES = {
+vital:{name:"🛡 Витальные — тело и выживание",d:"Страхи за саму жизнь и тело: расправа, стихия, боль, темнота, кровь, звуки, высота."},
+social:{name:"👥 Социальные — место среди людей",d:"Страх оценки, насмешки, публичности, чужих людей, «меня не слышат», некомпетентности."},
+inter:{name:"❤️ Межличностные — близость и доверие",d:"Страх предательства, отвержения, зависимости, границ, унижения, утраты близких."},
+forOthers:{name:"🤝 За других",d:"Страх за тех, за кого отвечаю: не успеть спасти, не обеспечить, без меня пострадают."},
+exist:{name:"🌌 Экзистенциальные",d:"Страх бессмысленности, пустоты, тишины, «жизнь пройдёт мимо»."},
+status:{name:"📉 Статус и ресурсы",d:"Страх нищеты, потери работы, проигрыша, обмана в обмене."},
+inner:{name:"🧠 Внутренние — свой собственный мир",d:"Страх собственного гнева, навязчивостей, «сойду с ума», зафиксированного страха."},
+change:{name:"🔄 Перемены и порядок",d:"Страх, что привычный порядок нарушится: перемены, неочевидность, «всё рассыплется»."},
+beyond:{name:"⚠️ За пределами чакр",d:"Особые состояния (Og, Mc, Lv) — по системе их не «прорабатывают», из них выходят: сон, еда, тело, живой контакт. Если такие состояния повторяются — это повод обратиться к специалисту."}
+};
+const CARD_TYPE = {
+"Бессилие и унижение":"inter","Собственный гнев и ярость":"inner","Насилие и угроза телу":"vital",
+"Потеря и нужда":"status","Пробитая граница и утрата контроля":"inter","Зависимость от другого":"inter","Сорванная сделка, «я проиграл»":"status",
+"Ошибка и неидеальность":"social","Распад порядка":"change","Обида и несправедливость":"inter","Навязчивые проверки (ОКР-страхи)":"inner",
+"Высота, вода, скорость (малодушие)":"beyond","«Не успеть спасти»":"forOthers","«Не успеть, отстать»":"exist",
+"«Все против меня» (паранойя)":"beyond","Предательство близкого":"inter","Отвращение и «чужие»":"social","Внезапная катастрофа":"vital",
+"Страх слова":"social","Пустота и скука":"exist","Быть обманутым":"inter","«Меня не слышат»":"social",
+"Тишина как смерть":"exist","Бессмысленность и тоска":"exist","Шум и гиперакузия":"vital","«Сойду с ума»":"inner",
+"Страх отвержения":"inter","Потеря близких":"inter","Фобии: темнота, кровь, боль":"vital","Страх оценки и взглядов":"social","Спасатель: «не справлюсь без меня»":"forOthers","Ненависть и фиксация страха":"inner","Ослепление: «свет поглотил»":"beyond"
+};
+const TYPE_ORDER = ["vital","social","inter","forOthers","exist","status","inner","change","beyond"];
+const STRENGTH = [
+["Фоновое напряжение — едва заметно, но тянется","Фрустрация","As"],
+["Испуг — вспышка, дрожь, резкий импульс","Стресс (острая)","P"],
+["Тревога — гложет, без адреса","Фрустрация","As"],
+["Паника — накрывает тело целиком","Стресс (паника)","P"],
+["Оцепенение — парализует: не выйти, не начать","Невроз (ригидный)","Cs"]
 ];
-const ELEM = ["P","P","As","Bk/Lv","Cs"];
+const FREQ = [["Часто — почти каждый день",3],["Время от времени — по настроению и обстоятельствам",2],["Редко — но когда накрывает, то всерьёз",1]];
 const LADDER = "Оцепенение → Испуг → Тревога → Страх → Паника → Смелость";
 
 let state = load();
 function load(){ try{ return JSON.parse(localStorage.getItem("fearMap")||"{}"); }catch(e){ return {}; } }
-function save(){ if(!state.custom) state.custom={}; if(!state.react) state.react={}; if(!state.open) state.open={}; localStorage.setItem("fearMap", JSON.stringify(state)); }
+function save(){ if(!state.custom) state.custom={}; if(!state.meta) state.meta={}; if(!state.open) state.open={};
+  for(const vk in state.custom){ state.custom[vk] = state.custom[vk].map(o=> typeof o==="string" ? {t:o,s:null,f:null} : o); }
+  localStorage.setItem("fearMap", JSON.stringify(state)); }
+
+function theme(){ return localStorage.getItem("fearTheme") || "dark"; }
+function applyTheme(){ document.body.classList.toggle("light", theme()==="light");
+  document.getElementById("gtheme").textContent = theme()==="light" ? "🌙" : "☀️"; }
+function toggleTheme(){ localStorage.setItem("fearTheme", theme()==="light"?"dark":"light"); applyTheme(); }
 
 const app = document.getElementById("app");
 let screen = "s1";
+let modalCtx = null;
 
-function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;")}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\u0022/g,"&quot;")}
+
+function fearKey(vk,ci,fi){ return vk+"_"+ci+"_"+fi; }
 
 function selectedFears(){
   const out = [];
   for(const vk in DATA){
     DATA[vk].cards.forEach((c,ci)=>{
       c.f.forEach((f,fi)=>{
-        const key = vk+"_"+ci+"_"+fi;
-        if(state[key]) out.push({key, vector:vk, text:f, card:c.t, custom:false});
+        const key = fearKey(vk,ci,fi);
+        if(state[key]) out.push({key, vector:vk, text:f, card:c.t, custom:false, meta:state.meta[key]||null});
       });
     });
-    (state.custom[vk]||[]).forEach((f,fi)=>{
-      out.push({key:"c_"+vk+"_"+fi, vector:vk, text:f, card:"свой вариант", custom:true});
+    (state.custom[vk]||[]).forEach((o,fi)=>{
+      out.push({key:"c_"+vk+"_"+fi, vector:vk, text:o.t, card:"свой вариант", custom:true, meta:(o.s!=null&&o.f!=null)?{s:o.s,f:o.f}:null});
     });
   }
   return out;
 }
+function wof(meta){ if(!meta||meta.s==null||meta.f==null) return null; return (meta.s+1)*FREQ[meta.f][1]; }
 
 function renderS1(){
   let html = "";
-  for(const vk in DATA){
-    const v = DATA[vk];
-    html += `<div class="vhead"><b>${v.name} вектор</b> <span class="m">— чакра ${v.chakra}, корень: ${v.root}</span></div>`;
-    v.cards.forEach((c,ci)=>{
-      const sel = c.f.filter((f,fi)=>state[vk+"_"+ci+"_"+fi]).length;
+  TYPE_ORDER.forEach(tk=>{
+    const t = TYPES[tk];
+    let groupCards = [];
+    for(const vk in DATA){ DATA[vk].cards.forEach((c,ci)=>{ if(CARD_TYPE[c.t]===tk) groupCards.push({vk,ci,c}); }); }
+    let groupCount = 0;
+    const vecsInGroup = new Set(groupCards.map(g=>g.vk));
+    groupCards.forEach(g=>{ g.c.f.forEach((f,fi)=>{ if(state[fearKey(g.vk,g.ci,fi)]) groupCount++; }); });
+    vecsInGroup.forEach(vk=>{ (state.custom[vk]||[]).forEach(o=>{ if(o.t) groupCount++; }); });
+    html += `<div class="vhead"><b>${t.name}</b><span class="m"> — ${t.d}${groupCount?` <span class="count">● ${groupCount}</span>`:""}</span></div>`;
+    groupCards.forEach(g=>{
+      const {vk,ci,c} = g;
+      const sel = c.f.filter((f,fi)=>state[fearKey(vk,ci,fi)]).length + (state.custom[vk]||[]).length;
       const isOpen = state.open[vk+"_"+ci] ? " open" : "";
+      const badge = BEYOND_CARDS.has(c.t) ? `<span class="badge">за пределами чакр</span>` : "";
       html += `<div class="card${isOpen}" id="card_${vk}_${ci}">
-        <div class="card-h" data-act="toggle" data-card="${vk}_${ci}"><span>${esc(c.t)}${sel?`<span class="count">● ${sel}</span>`:""}</span><span class="arr">▸</span></div>
+        <div class="card-h" data-act="toggle" data-card="${vk}_${ci}"><span>${esc(c.t)}${badge}${sel?`<span class="count">● ${sel}</span>`:""}</span><span class="arr">▸</span></div>
         <div class="card-body">
           <p>${esc(c.d)}</p>
           ${c.ex.map(e=>`<div class="ex">«${esc(e)}»</div>`).join("")}
+          <p class="sub" style="font-size:.88em;margin-top:8px">Дом: ${DATA[vk].name} вектор · чакра ${DATA[vk].chakra} · корень: ${DATA[vk].root}</p>
           <div style="margin-top:8px">${c.f.map((f,fi)=>{
-            const key = vk+"_"+ci+"_"+fi;
-            return `<span class="chip ${state[key]?"sel":""}" data-act="chip" data-key="${key}">${esc(f)}</span>`;
+            const key = fearKey(vk,ci,fi);
+            const m = state[key]?wof(state.meta[key]||null):null;
+            return `<span class="chip ${state[key]?"sel":""}" data-act="chip" data-key="${key}" data-vk="${vk}" data-card="${ci}" data-fi="${fi}">${esc(f)}${m?`<span class="wtag">· ${m}</span>`:""}</span>`;
           }).join("")}</div>
           <div class="addrow"><input type="text" placeholder="свой страх..." id="inp_${vk}_${ci}"><button data-act="add" data-vec="${vk}" data-card="${ci}">+</button></div>
-          ${(state.custom[vk]||[]).length?`<div style="margin-top:8px">${(state.custom[vk]||[]).map((f,fi)=>{
+          ${(state.custom[vk]||[]).length?`<div style="margin-top:8px">${(state.custom[vk]||[]).map((o,fi)=>{
             const key="c_"+vk+"_"+fi;
-            return `<span class="chip sel" data-act="chip" data-key="${key}">${esc(f)} ✕</span>`;
+            const m = wof({s:o.s,f:o.f});
+            return `<span class="chip sel" data-act="chip" data-key="${key}" data-vk="${vk}" data-card="${ci}" data-fi="${fi}">${esc(o.t)}${m!=null?`<span class="wtag">· ${m}</span>`:""} ✕</span>`;
           }).join("")}</div>`:""}
         </div>
       </div>`;
     });
-  }
-  html += `<p class="sub" style="margin-top:20px">Отмечено страхов: <b>${selectedFears().length}</b></p>`;
+  });
+  html += `<p class="sub" style="margin-top:20px">Отмечено страхов: <b>${selectedFears().length}</b> · клик по страху открывает окно: сила реакции и частота.</p>`;
   app.innerHTML = html;
 }
+
+function openModal(ctx){
+  modalCtx = ctx;
+  const v = DATA[ctx.vector];
+  const meta = ctx.meta || {};
+  let html = `<h3>${esc(ctx.text)}</h3>
+  <div class="mv">Дом: ${v.name} вектор · карточка: ${esc(ctx.card)} · корень: ${v.root}</div>
+  <div class="mq">Как сильно это обычно накрывает?</div>`;
+  STRENGTH.forEach((s,si)=>{ html += `<label class="opt ${meta.s===si?"sel":""}" data-act="msel" data-kind="s" data-idx="${si}">${s[0]} <span class="sub" style="font-size:.85em">· ${s[1]}</span></label>`; });
+  html += `<div class="mq">Как часто приходит?</div>`;
+  FREQ.forEach((f,fi)=>{ html += `<label class="opt ${meta.f===fi?"sel":""}" data-act="msel" data-kind="f" data-idx="${fi}">${f[0]}</label>`; });
+  html += `<div class="sub" style="font-size:.85em;margin-top:8px">Лестница страха: ${LADDER}</div>
+  <div class="mbtns">${ctx.exists?`<button class="ghost" data-act="mremove">Убрать отметку</button>`:""}<button class="ghost" data-act="mclose">Отмена</button><button data-act="msave">Сохранить</button></div>`;
+  document.getElementById("mbox").innerHTML = html;
+  document.getElementById("modal").classList.add("show");
+}
+function closeModal(){ document.getElementById("modal").classList.remove("show"); modalCtx = null; }
 
 function renderS2(){
-  const sel = selectedFears();
-  if(sel.length === 0){
-    app.innerHTML = `<div class="warnbox">Ни один страх не отмечен. Вернитесь на первый шаг и отметьте хотя бы один — только тогда можно определить вектор и стадию.</div>`;
-    return;
-  }
+  const sel = selectedFears().filter(s=>wof(s.meta)!=null);
+  if(!sel.length){ app.innerHTML = `<div class="warnbox">Нет данных — вернитесь и отметьте страхи (в окне каждого страха выберите силу и частоту).</div>`; return; }
   const byVec = {};
   sel.forEach(s=>{ (byVec[s.vector] = byVec[s.vector]||[]).push(s); });
-  let html = `<h2>Как это накрывает?</h2><p class="sub">Для каждого вектора, где есть отметки, выберите типичную форму реакции. Это лестница страха из вашей системы.</p>`;
+  const stats = [];
   for(const vk in byVec){
-    const v = DATA[vk];
-    html += `<div class="vhead"><b>${v.name}</b> <span class="m">— ${byVec[vk].length} страх(ов)</span></div>`;
-    REACTS.forEach((r,ri)=>{
-      const key = "r_"+vk;
-      html += `<label class="opt ${state[key]===ri?"sel":""}" data-act="react" data-key="${key}" data-ri="${ri}">${r[0]} <span class="sub" style="font-size:.85em"> · ${r[1]}</span></label>`;
-    });
+    const arr = byVec[vk];
+    const totW = arr.reduce((a,s)=>a+wof(s.meta),0);
+    const maxS = Math.max(...arr.map(s=>s.meta.s));
+    stats.push({vk, n:arr.length, totW, avgW:totW/arr.length, maxS, arr});
   }
-  app.innerHTML = html;
-}
-
-function renderS3(){
-  const sel = selectedFears();
-  if(!sel.length){ app.innerHTML = `<div class="warnbox">Нет данных — вернитесь и отметьте страхи.</div>`; return; }
-  const byVec = {};
-  sel.forEach(s=>{ (byVec[s.vector] = byVec[s.vector]||[]).push(s); });
-  let lead = null, max = 0;
-  for(const vk in byVec){ if(byVec[vk].length>max){ max = byVec[vk].length; lead = vk; } }
+  stats.sort((a,b)=>b.totW-a.totW);
+  const lead = stats[0];
   const beyond = sel.filter(s=>!s.custom && BEYOND_CARDS.has(s.card));
   let html = `<h2>🧭 Ваш векторальный профиль страха</h2>`;
   if(beyond.length) html += `<div class="warnbox"><b>Важно:</b> среди отметок есть состояния за пределами чакр (Og, Mc, Lv). По системе их не «прорабатывают» — из них выходят: сон, еда, тело, живой контакт. Если паранойя, ослепление или малодушие повторяются — это повод обратиться к специалисту.</div>`;
-  html += `<table><tr><th>Вектор</th><th>Страхов</th><th>Стадия</th><th>Элемент</th></tr>`;
-  for(const vk in byVec){
-    const ri = state["r_"+vk];
-    html += `<tr><td>${DATA[vk].name}</td><td>${byVec[vk].length}</td><td>${ri!==undefined?REACTS[ri][1]:"не отмечено"}</td><td>${ri!==undefined?ELEM[ri]:"—"}</td></tr>`;
-  }
+  html += `<table><tr><th>Вектор</th><th>Страхов</th><th>Суммарный вес</th><th>Средний вес</th><th>Макс. сила → стадия</th></tr>`;
+  stats.forEach(st=>{
+    html += `<tr><td>${DATA[st.vk].name}${st.vk===lead.vk?` <span class="count">ведущий</span>`:""}</td><td>${st.n}</td><td>${st.totW}</td><td>${st.avgW.toFixed(1)}</td><td>${STRENGTH[st.maxS][0].split(" — ")[0]} → ${STRENGTH[st.maxS][1]}</td></tr>`;
+  });
   html += `</table>`;
-  const v = DATA[lead];
-  const ri = state["r_"+lead];
+  const v = DATA[lead.vk];
   html += `<div class="lead"><b>Ведущий дом разлома: ${v.name}</b><br>
   Чакра ${v.chakra}, корень «${v.root}».<br>
-  Стадия: ${ri!==undefined?REACTS[ri][1]:"не определена"} — ${ri!==undefined?REACTS[ri][0].toLowerCase():""}.<br><br>
+  Самая сильная реакция: ${STRENGTH[lead.maxS][0]} — стадия: ${STRENGTH[lead.maxS][1]}.<br><br>
   <b>Что лечит</b> (закон 13 — тьма не лечится внутри дома): партнёр — <b>${v.partner}</b>.<br>
   ${esc(v.heal)}</div>`;
+  html += `<h3>Самые «тяжёлые» страхи</h3><p class="sub">Вес = сила (1–5) × частота (1–3). Максимум 15 — это паника или паралич почти каждый день.</p>`;
+  const top = [...sel].sort((a,b)=>wof(b.meta)-wof(a.meta)).slice(0,7);
+  top.forEach(s=>{
+    const w = wof(s.meta);
+    html += `<div class="frow"><b>${esc(s.text)}</b> <span class="m">· ${DATA[s.vector].name} вектор · ${STRENGTH[s.meta.s][0].split(" — ")[0]}, ${FREQ[s.meta.f][0].split(" — ")[0]}</span><div class="wbar" style="width:${w*6.66}%"></div></div>`;
+  });
+  html += `<h3>Разбор по векторам</h3>`;
+  stats.forEach(st=>{
+    html += `<p><b>${DATA[st.vk].name}</b> — ${st.n} страх(ов), вес ${st.totW}. Максимальная сила: ${STRENGTH[st.maxS][0]} (${STRENGTH[st.maxS][1]}, ${STRENGTH[st.maxS][2]}).</p><div class="card" style="margin:6px 0"><div class="card-body" style="display:block;padding:8px 16px">` +
+      st.arr.map(s=>`<div class="frow">${esc(s.text)} <span class="m">· ${STRENGTH[s.meta.s][0].split(" — ")[0]}, ${FREQ[s.meta.f][0].split(" — ")[0]} · вес ${wof(s.meta)}</span></div>`).join("") + `</div></div>`;
+  });
   html += `<p class="sub">Лестница страха: ${LADDER}. Путь вверх — Осторожность → Трепет → Решимость → Смелость: страх не убирается, а переупаковывается в расчёт, затем в интерес, затем в шаг.</p>`;
   html += `<p class="sub">Далее — в тетрадь Дня 1: по каждому вектору из таблицы одна строка «что заметил(а)» вечером.</p>`;
   app.innerHTML = html;
@@ -239,19 +318,23 @@ function renderS3(){
 
 function render(){
   document.getElementById("bBack").style.display = screen==="s1" ? "none" : "";
-  document.getElementById("bNext").style.display = screen==="s3" ? "none" : "";
-  if(screen==="s1") renderS1();
-  else if(screen==="s2") renderS2();
-  else renderS3();
+  document.getElementById("bNext").style.display = screen==="s2" ? "none" : "";
+  if(screen==="s1") renderS1(); else renderS2();
 }
 
 document.getElementById("bNext").onclick = ()=>{
-  if(screen==="s1"){ if(selectedFears().length===0){ alert("Отметьте хотя бы один страх — иначе нечего анализировать."); return; } screen="s2"; }
-  else if(screen==="s2"){ screen="s3"; }
+  if(screen==="s1"){
+    const sel = selectedFears().filter(s=>wof(s.meta)!=null);
+    if(sel.length===0){ alert("Отметьте хотя бы один страх и в его окне выберите силу и частоту — иначе нечего анализировать."); return; }
+    screen="s2";
+  }
   save(); render(); window.scrollTo(0,0);
 };
-document.getElementById("bBack").onclick = ()=>{ screen = screen==="s3"?"s2":"s1"; render(); window.scrollTo(0,0); };
-document.getElementById("bReset").onclick = ()=>{ if(confirm("Сбросить все отметки?")){ localStorage.removeItem("fearMap"); state = {}; screen="s1"; render(); } };
+document.getElementById("bBack").onclick = ()=>{ screen="s1"; save(); render(); window.scrollTo(0,0); };
+document.getElementById("bReset").onclick = ()=>{
+  if(confirm("Сбросить все отметки?")){ localStorage.removeItem("fearMap"); localStorage.removeItem("fearTheme"); location.reload(); }
+};
+document.getElementById("gtheme").onclick = toggleTheme;
 
 document.addEventListener("click", e=>{
   const t = e.target.closest("[data-act]");
@@ -260,19 +343,48 @@ document.addEventListener("click", e=>{
   if(act==="toggle"){
     const id = t.dataset.card;
     state.open[id] = !state.open[id];
-    save(); render();
+    save(); renderS1();
   } else if(act==="chip"){
-    const key = t.dataset.key;
+    const {key,vk,card,fi} = t.dataset;
     if(key.startsWith("c_")){
-      const [,vk,fi] = key.split("_");
-      state.custom[vk].splice(+fi,1);
+      const o = state.custom[vk][+fi];
+      const isSet = o.s!=null && o.f!=null;
+      openModal({key, vector:vk, text:o.t, card:"свой вариант", exists:isSet, custom:{vk,fi}, meta:isSet?{s:o.s,f:o.f}:null});
     } else {
-      state[key] = !state[key];
+      if(state[key]){
+        openModal({key, vector:vk, text:DATA[vk].cards[+card].f[+fi], card:DATA[vk].cards[+card].t, exists:true, meta:state.meta[key]||null});
+      } else {
+        openModal({key, vector:vk, text:DATA[vk].cards[+card].f[+fi], card:DATA[vk].cards[+card].t, exists:false, isNew:true, meta:null});
+      }
     }
-    save(); render();
-  } else if(act==="react"){
-    state[t.dataset.key] = +t.dataset.ri;
-    save(); render();
+  } else if(act==="msel"){
+    if(!modalCtx) return;
+    if(!modalCtx.draft) modalCtx.draft = {s:null,f:null};
+    modalCtx.draft[t.dataset.kind] = +t.dataset.idx;
+    document.querySelectorAll("#mbox .opt").forEach(o=>{ if(o.dataset.act==="msel" && o.dataset.kind===t.dataset.kind) o.classList.toggle("sel", +o.dataset.idx===+t.dataset.idx); });
+  } else if(act==="msave"){
+    if(!modalCtx) return;
+    if(!modalCtx.draft || modalCtx.draft.s==null || modalCtx.draft.f==null){ alert("Выберите силу и частоту — это вход в диагностику."); return; }
+    if(modalCtx.custom){
+      state.custom[modalCtx.custom.vk][+modalCtx.custom.fi].s = modalCtx.draft.s;
+      state.custom[modalCtx.custom.vk][+modalCtx.custom.fi].f = modalCtx.draft.f;
+    } else {
+      state[modalCtx.key] = true;
+      state.meta[modalCtx.key] = {s:modalCtx.draft.s, f:modalCtx.draft.f};
+    }
+    save(); closeModal(); renderS1();
+  } else if(act==="mremove"){
+    if(!modalCtx) return;
+    if(modalCtx.custom){ state.custom[modalCtx.custom.vk].splice(+modalCtx.custom.fi,1); }
+    else { delete state[modalCtx.key]; delete state.meta[modalCtx.key]; }
+    save(); closeModal(); renderS1();
+  } else if(act==="mclose"){
+    if(modalCtx && modalCtx.isNew){
+      if(modalCtx.custom){ state.custom[modalCtx.custom.vk].splice(+modalCtx.custom.fi,1); }
+      else { delete state[modalCtx.key]; }
+      save();
+    }
+    closeModal(); renderS1();
   } else if(act==="add"){
     const vk = t.dataset.vec, ci = t.dataset.card;
     const inp = document.getElementById("inp_"+vk+"_"+ci);
@@ -280,20 +392,35 @@ document.addEventListener("click", e=>{
     if(!val) return;
     state.custom = state.custom||{};
     state.custom[vk] = state.custom[vk]||[];
-    state.custom[vk].push(val);
-    save(); render();
+    state.custom[vk].push({t:val, s:null, f:null});
+    inp.value = "";
+    save(); renderS1();
+    openModal({key:"c_"+vk+"_"+(state.custom[vk].length-1), vector:vk, text:val, card:"свой вариант", exists:false, isNew:true, custom:{vk,fi:state.custom[vk].length-1}, meta:null});
+  }
+});
+document.getElementById("modal").addEventListener("click", e=>{
+  if(e.target.id==="modal"){
+    if(modalCtx && modalCtx.isNew){
+      if(modalCtx.custom){ state.custom[modalCtx.custom.vk].splice(+modalCtx.custom.fi,1); }
+      else { delete state[modalCtx.key]; }
+      save();
+    }
+    closeModal(); renderS1();
   }
 });
 
 document.addEventListener("keydown", e=>{
   if(e.key==="Enter" && e.target.tagName==="INPUT" && e.target.id.startsWith("inp_")){
-    const [,vk,ci] = e.target.id.split("_");
-    const val = e.target.value.trim();
-    if(!val) return;
-    state.custom = state.custom||{};
-    state.custom[vk] = state.custom[vk]||[];
-    state.custom[vk].push(val);
-    save(); render();
+    const btn = e.target.parentElement.querySelector("button");
+    if(btn) btn.click();
+  }
+  if(e.key==="Escape" && modalCtx){
+    if(modalCtx.isNew){
+      if(modalCtx.custom){ state.custom[modalCtx.custom.vk].splice(+modalCtx.custom.fi,1); }
+      else { delete state[modalCtx.key]; }
+      save();
+    }
+    closeModal(); renderS1();
   }
 });
 
@@ -301,6 +428,7 @@ window.addEventListener("beforeprint", ()=>{
   document.querySelectorAll(".card").forEach(c=>c.classList.add("open"));
 });
 
+applyTheme();
 save(); render();
 </script>
 </body>
